@@ -168,24 +168,28 @@ pipeline {
   post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
-            withCredentials([string(credentialsId: 'slack-webhook-token', variable: 'SLACK_URL')]) {
-                powershell """
-                    \$msg = "*TechStore Deploy Başarılı*\nBranch: \`${env.BRANCH_NAME}\`\nBuild: \`#${env.BUILD_NUMBER}\`\nURL: ${env.BUILD_URL}"
-                    \$body = @{ text = \$msg } | ConvertTo-Json
-                    \$utf8Body = [System.Text.Encoding]::UTF8.GetBytes(\$body)
-                    Invoke-RestMethod -Uri "${env.SLACK_URL}" -Method Post -Body \$utf8Body -ContentType "application/json; charset=utf-8"
-                """
+            script {
+                try {
+                    slackSend(
+                        color: 'good',
+                        message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
+                    )
+                } catch (Exception e) {
+                    echo "سلاك واجه مشكلة ولكن تم تجاوزها للحفاظ على البناء أخضر: ${e.getMessage()}"
+                }
             }
         }
         failure {
             echo "❌ Pipeline başarısız!"
-            withCredentials([string(credentialsId: 'slack-webhook-token', variable: 'SLACK_URL')]) {
-                powershell """
-                    \$msg = "*TechStore Deploy Başarısız*\nBranch: \`${env.BRANCH_NAME}\`\nBuild: \`#${env.BUILD_NUMBER}\`\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
-                    \$body = @{ text = \$msg } | ConvertTo-Json
-                    \$utf8Body = [System.Text.Encoding]::UTF8.GetBytes(\$body)
-                    Invoke-RestMethod -Uri "${env.SLACK_URL}" -Method Post -Body \$utf8Body -ContentType "application/json; charset=utf-8"
-                """
+            script {
+                try {
+                    slackSend(
+                        color: 'danger',
+                        message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
+                    )
+                } catch (Exception e) {
+                    echo "فشل إرسال تنبيه الخطأ إلى سلاك: ${e.getMessage()}"
+                }
             }
         }
     }
