@@ -165,11 +165,11 @@ pipeline {
         // ── 10. UI TESTLERİ ─────────────────────────────────────
         stage('UI Tests') {
             steps {
-                sh '''
-                    . venv/bin/activate
-                    pytest tests/test_ui.py -v --tb=short || true
-                '''
-            }
+          sh '''
+            . venv/bin/activate
+            python3 -m pytest tests/test_ui.py -v --tb=short || true
+        '''
+           }
         }
     }
 
