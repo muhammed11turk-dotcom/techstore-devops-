@@ -165,24 +165,20 @@ pipeline {
     }
 
     // ── POST ACTIONS ────────────────────────────────────────────
-    post {
+   post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
-            powershell """
-                \$msg = "*TechStore Deploy Başarılı*\nBranch: \`${env.BRANCH_NAME}\`\nBuild: \`#${env.BUILD_NUMBER}\`\nURL: ${env.BUILD_URL}"
-                \$body = @{ text = \$msg } | ConvertTo-Json
-                \$utf8Body = [System.Text.Encoding]::UTF8.GetBytes(\$body)
-                Invoke-RestMethod -Uri "https://hooks.slack.com/services/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" -Method Post -Body \$utf8Body -ContentType "application/json; charset=utf-8"
-            """
+            slackSend(
+                color: 'good',
+                message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
+            )
         }
         failure {
             echo "❌ Pipeline başarısız!"
-            powershell """
-                \$msg = "*TechStore Deploy Başarısız*\nBranch: \`${env.BRANCH_NAME}\`\nBuild: \`#${env.BUILD_NUMBER}\`\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
-                \$body = @{ text = \$msg } | ConvertTo-Json
-                \$utf8Body = [System.Text.Encoding]::UTF8.GetBytes(\$body)
-                Invoke-RestMethod -Uri "https://hooks.slack.com/services/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" -Method Post -Body \$utf8Body -ContentType "application/json; charset=utf-8"
-            """
+            slackSend(
+                color: 'danger',
+                message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
+            )
         }
     }
 }
