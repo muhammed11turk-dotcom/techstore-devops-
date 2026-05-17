@@ -165,20 +165,28 @@ pipeline {
     }
 
     // ── POST ACTIONS ────────────────────────────────────────────
-   post {
+  post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
-            slackSend(
-                color: 'good',
-                message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
-            )
+            withCredentials([string(credentialsId: 'slack-webhook-token', variable: 'SLACK_URL')]) {
+                powershell """
+                    \$msg = "*TechStore Deploy Başarılı*\nBranch: \`${env.BRANCH_NAME}\`\nBuild: \`#${env.BUILD_NUMBER}\`\nURL: ${env.BUILD_URL}"
+                    \$body = @{ text = \$msg } | ConvertTo-Json
+                    \$utf8Body = [System.Text.Encoding]::UTF8.GetBytes(\$body)
+                    Invoke-RestMethod -Uri "${env.SLACK_URL}" -Method Post -Body \$utf8Body -ContentType "application/json; charset=utf-8"
+                """
+            }
         }
         failure {
             echo "❌ Pipeline başarısız!"
-            slackSend(
-                color: 'danger',
-                message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
-            )
+            withCredentials([string(credentialsId: 'slack-webhook-token', variable: 'SLACK_URL')]) {
+                powershell """
+                    \$msg = "*TechStore Deploy Başarısız*\nBranch: \`${env.BRANCH_NAME}\`\nBuild: \`#${env.BUILD_NUMBER}\`\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
+                    \$body = @{ text = \$msg } | ConvertTo-Json
+                    \$utf8Body = [System.Text.Encoding]::UTF8.GetBytes(\$body)
+                    Invoke-RestMethod -Uri "${env.SLACK_URL}" -Method Post -Body \$utf8Body -ContentType "application/json; charset=utf-8"
+                """
+            }
         }
     }
 }
