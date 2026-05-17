@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_IMAGE    = 'techstore-app'
-        DOCKER_HUB_USER = 'kullanici-adi'          // Docker Hub kullanıcı adınız
+        DOCKER_HUB_USER = 'muhammed11t'          // Docker Hub kullanıcı adınız
         SONAR_HOST      = 'http://localhost:9000'
         SONAR_TOKEN     = credentials('sonar-token') // Jenkins Credentials'a ekleyin
         SLACK_CHANNEL   = '#devops-techstore'
@@ -57,7 +57,7 @@ pipeline {
                             -Dsonar.sources=. \
                             -Dsonar.exclusions=venv/**,tests/**,**/__pycache__/** \
                             -Dsonar.python.coverage.reportPaths=coverage.xml \
-                            -Dsonar.host.url=http://host.docker.internal:9000\
+                            -Dsonar.host.url=http://host.docker.internal:9000 \
                             -Dsonar.login=${SONAR_TOKEN}
                     '''
                 }
@@ -132,26 +132,26 @@ pipeline {
 
         // ── 9. SMOKE TEST ───────────────────────────────────────
         stage('Smoke Test') {
-            steps {
-                sh '''
-                    # /health endpoint kontrol
-                    STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/health)
-                    if [ "$STATUS" != "200" ]; then
-                        echo "❌ Smoke test başarısız! HTTP: $STATUS"
-                        exit 1
-                    fi
+    steps {
+        sh '''
+            # /health endpoint kontrol
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://host.docker.internal:5000/health)
+            if [ "$STATUS" != "200" ]; then
+                echo "❌ Smoke test başarısız! HTTP: $STATUS"
+                exit 1
+            fi
 
-                    # Ana sayfa kontrol
-                    STATUS2=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/)
-                    if [ "$STATUS2" != "200" ]; then
-                        echo "❌ Ana sayfa erişilemiyor! HTTP: $STATUS2"
-                        exit 1
-                    fi
+            # Ana sayfa kontrol
+            STATUS2=$(curl -s -o /dev/null -w "%{http_code}" http://host.docker.internal:5000/)
+            if [ "$STATUS2" != "200" ]; then
+                echo "❌ Ana sayfa erişilemiyor! HTTP: $STATUS2"
+                exit 1
+            fi
 
-                    echo "✅ Smoke testleri geçildi"
-                '''
-            }
-        }
+            echo "✅ Smoke testleri geçildi"
+        '''
+    }
+}
 
         // ── 10. UI TESTLERİ ─────────────────────────────────────
         stage('UI Tests') {
