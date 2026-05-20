@@ -75,20 +75,20 @@ pipeline {
         }
 
         // ── 6. DOCKER İMAJI ─────────────────────────────────────
-       stage('Build Docker Image') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Skipping Docker Build stage temporarily...'
-                // sh """
-                //     docker build \\
-                //         -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} \\
-                //         -t ${DOCKER_IMAGE}:latest \\
-                //         --build-arg BUILD_DATE=\$(date -u +%Y-%m-%dT%H:%M:%SZ) \\
-                //         --build-arg GIT_COMMIT=${env.GIT_COMMIT?.take(7)} \\
-                //         .
-                // """
+                sh """
+                    docker build \
+                        -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} \
+                        -t ${DOCKER_IMAGE}:latest \
+                        --build-arg BUILD_DATE=\$(date -u +%Y-%m-%dT%H:%M:%SZ) \
+                        --build-arg GIT_COMMIT=${env.GIT_COMMIT?.take(7)} \
+                        .
+                """
                 echo "✅ Docker imajı oluşturuldu: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
             }
         }
+
         // ── 7. DOCKER HUB'A GÖNDER ──────────────────────────────
         stage('Push to Docker Hub') {
             steps {
@@ -165,12 +165,20 @@ pipeline {
     }
 
     // ── POST ACTIONS ────────────────────────────────────────────
- post {
+   post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
+            slackSend(
+                color: 'good',
+                message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
+            )
         }
         failure {
             echo "❌ Pipeline başarısız!"
+            slackSend(
+                color: 'danger',
+                message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
+            )
         }
     }
 }
