@@ -165,32 +165,20 @@ pipeline {
     }
 
     // ── POST ACTIONS ────────────────────────────────────────────
-  post {
+   post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
-            script {
-                try {
-                    slackSend(
-                        color: 'good',
-                        message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
-                    )
-                } catch (Exception e) {
-                    echo "سلاك واجه مشكلة ولكن تم تجاوزها للحفاظ على البناء أخضر: ${e.getMessage()}"
-                }
-            }
+            slackSend(
+                color: 'good',
+                message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
+            )
         }
         failure {
             echo "❌ Pipeline başarısız!"
-            script {
-                try {
-                    slackSend(
-                        color: 'danger',
-                        message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
-                    )
-                } catch (Exception e) {
-                    echo "فشل إرسال تنبيه الخطأ إلى سلاك: ${e.getMessage()}"
-                }
-            }
+            slackSend(
+                color: 'danger',
+                message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
+            )
         }
     }
 }
