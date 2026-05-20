@@ -77,14 +77,13 @@ pipeline {
         // ── 6. DOCKER İMAJI ─────────────────────────────────────
         stage('Build Docker Image') {
             steps {
-                sh """
-                    docker build \
-                        -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} \
-                        -t ${DOCKER_IMAGE}:latest \
-                        --build-arg BUILD_DATE=\$(date -u +%Y-%m-%dT%H:%M:%SZ) \
-                        --build-arg GIT_COMMIT=${env.GIT_COMMIT?.take(7)} \
+               // sh """
+                //    docker build \
+                //        -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} \
+                 //        --build-arg BUILD_DATE=\$(date -u +%Y-%m-%dT%H:%M:%SZ) \
+                  //      --build-arg GIT_COMMIT=${env.GIT_COMMIT?.take(7)} \
                         .
-                """
+              //  """
                 echo "✅ Docker imajı oluşturuldu: ${DOCKER_IMAGE}:${env.BUILD_NUMBER}"
             }
         }
