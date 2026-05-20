@@ -165,20 +165,12 @@ pipeline {
     }
 
     // ── POST ACTIONS ────────────────────────────────────────────
-   post {
+ post {
         success {
             echo "🎉 Pipeline başarıyla tamamlandı!"
-            slackSend(
-                color: 'good',
-                message: "*TechStore Deploy Başarılı*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nURL: ${env.BUILD_URL}"
-            )
         }
         failure {
             echo "❌ Pipeline başarısız!"
-            slackSend(
-                color: 'danger',
-                message: "*TechStore Deploy Başarısız*\nBranch: ${env.BRANCH_NAME}\nBuild: #${env.BUILD_NUMBER}\nAşama: ${env.STAGE_NAME}\nDetay: ${env.BUILD_URL}console"
-            )
         }
     }
 }
